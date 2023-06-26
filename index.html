@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Test</title>
+        <style>
+            .modal-wrapper {
+                display: none;
+            }
+
+            .modal-wrapper.active {
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <button type="button" aria-label="search" onclick="openModal()">
+            <span>
+                <div class="td-search__icon"></div>
+                <svg width="20" height="20" class="DocSearch-Search-Icon" viewBox="0 0 20 20"><path d="M14.386 14.386l4.0877 4.0877-4.0877-4.0877c-2.9418 2.9419-7.7115 2.9419-10.6533 0-2.9419-2.9418-2.9419-7.7115 0-10.6533 2.9418-2.9419 7.7115-2.9419 10.6533 0 2.9419 2.9418 2.9419 7.7115 0 10.6533z" stroke="currentColor" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span>Search</span>
+            </span>
+            <span id="search-button-keys"></span>
+        </button>
+
+        <div class="modal-wrapper">
+            <div class="modal-body">
+                <div class="td-search form-inline">
+                    <div class="td-search td-search-clerk">
+                        <div class="td-search__icon"></div>
+                        <input id="clerk-search-input" type="search" class="td-search__input form-control td-search-input pl-3" placeholder="{{ T "ui_search" }}" aria-label="{{ T "ui_search" }}" autocomplete="off"/>
+                    </div>
+                    <span class="clerk" data-template="@knowledge-live-search" data-instant-search="#clerk-search-input" data-instant-search-suggestions="0" data-instant-search-categories="0" data-instant-search-pages="20" data-instant-search-positioning="center" />
+                </div>
+            </div>
+            <div class="modal-footer">Search by <img src="https://global-uploads.webflow.com/63357df7224a8a49353f3636/63381c44a918c228b61fd12e_Logo.svg" alt="Clerk.io logo" height="20px"><!-- Clerk logo --></div>
+        </div>
+
+        <script type="text/javascript">
+            const modalWrapper = document.querySelector(".modal-wrapper");
+
+            document.addEventListener("keydown", function (event) {
+                const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
+
+                if ((isMac && event.metaKey && event.code === "KeyK") || (!isMac && event.ctrlKey && event.code === "KeyK")) {
+                    event.preventDefault();
+                    openModal();
+                }
+            });
+
+            document.addEventListener("DOMContentLoaded", function () {
+                const inputField = document.getElementById("search-button-keys");
+
+                // Determine the platform-specific key combination
+                const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
+                const shortcut = isMac ? "⌘" : "Ctrl";
+
+                // Create the <kbd> element and set its content
+                const kbdElement = document.createElement("kbd");
+                kbdElement.textContent = shortcut + "+K";
+
+                // Append the <kbd> element after the input field
+                inputField.parentNode.insertBefore(kbdElement, inputField.nextSibling);
+
+                inputField.addEventListener("focus", openModal);
+                inputField.addEventListener("click", openModal);
+            });
+            function openModal() {
+                modalWrapper.classList.add("active");
+            }
+        </script>
+    </body>
+</html>
