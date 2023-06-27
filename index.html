@@ -85,6 +85,11 @@
                 flex-grow: 1; /* Allow .modal-content to take up remaining space */
             }
 
+            .clerk-instant-search-visible {
+                margin-bottom: 40px;
+                height: auto;
+            }
+
             .modal-wrapper {
                 border-radius: 5px;
                 max-width: 600px;
@@ -126,10 +131,13 @@
             }
 
             .clerk-input-wrapper {
-                position: fixed;
-                top: 0;
+                display: flex;
+                margin-top: 0;
                 padding: 25px;
-                transform: translate(-50%, 0);
+            }
+
+            .clerk-input-wrapper:first-child {
+                margin: 0 auto;
             }
 
             #clerk-search-input {
@@ -182,6 +190,7 @@
                                 <input id="clerk-search-input" type="search" class="td-search__input form-control td-search-input pl-3" placeholder="{{ T "ui_search" }}" aria-label="{{ T "ui_search" }}" autocomplete="off"/>
                             </div>
                         </div>
+                        <span class="clerk" id="clerk-live-search" data-template="@knowledge-live-search" data-instant-search="#clerk-search-input" data-instant-search-suggestions="0" data-instant-search-categories="0" data-instant-search-pages="20" data-instant-search-positioning="off" />
                     </div>
                     <div class="modal-footer">
                         <a class="clerk-link" href="https://clerk.io" target="_blank">
@@ -191,7 +200,6 @@
                     </div>
                 </div>
             </div>
-            <span class="clerk" id="clerk-live-search" data-template="@knowledge-live-search" data-instant-search="#clerk-search-input" data-instant-search-suggestions="0" data-instant-search-categories="0" data-instant-search-pages="20" data-instant-search-positioning="center" />
 
             <script type="text/javascript">
                 (function (w, d) {
@@ -211,16 +219,6 @@
 
                 Clerk("config", {
                     key: "kasbUR8U7kctCTYMF5BquEtllUZJ901E",
-                });
-
-                document.addEventListener("DOMContentLoaded", function () {
-                    const clerkLiveSearch = document.getElementById("clerk-live-search");
-                    const modalContent = document.querySelector(".modal-body");
-
-                    new ResizeObserver(() => {
-                        let clerkHeight = clerkLiveSearch.offsetHeight;
-                        modalContent.style.height = `${clerkHeight + 100}px`;
-                    }).observe(clerkLiveSearch);
                 });
 
                 const modalWrapper = document.querySelector(".modal-wrapper");
