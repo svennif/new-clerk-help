@@ -24,10 +24,26 @@
                 color: #495057;
                 background-color: #fff;
                 background-clip: padding-box;
+                cursor: pointer;
                 border: 1px solid #ccc;
                 border-radius: 0.25rem;
                 box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
                 transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            }
+
+            .clerk-search-button-placeholder {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .clerk-search-button-icon-wrapper {
+                display: flex;
+                align-items: center;
+            }
+
+            .DocSearch-Search-Icon {
+                margin-right: 4px;
             }
 
             .modal-background {
@@ -58,11 +74,22 @@
                 background: rgba(0, 0, 0, 0.5);
             }
 
+            .modal-body {
+                display: flex;
+                flex-direction: column;
+                overflow: auto; /* Add scrolling if the content exceeds the height */
+                padding: 15px; /* Adjust padding as needed */
+            }
+
+            .modal-content {
+                flex-grow: 1; /* Allow .modal-content to take up remaining space */
+            }
+
             .modal-wrapper {
-                border: 1px solid #ccc;
                 border-radius: 5px;
-                width: 400px;
-                padding: 20px 40px 0 40px;
+                max-width: 600px;
+                min-height: 300px;
+                width: 100%;
                 height: auto;
                 display: flex;
                 flex-direction: column;
@@ -70,27 +97,53 @@
                 justify-content: center;
                 background: #fff;
                 position: fixed;
-                top: 20vh;
+                top: 5em; /* Change from top to bottom */
                 left: 50vw;
-                transform: translate(-50%, -50%);
+                transform: translateX(-50%);
+                box-shadow: inset 1px 1px 0 0 #2c2e40, 0 3px 8px 0 #000309;
             }
 
             .modal-footer {
                 align-items: center;
-                background: var(--docsearch-footer-background);
-                border-radius: 0 0 8px 8px;
-                box-shadow: var(--docsearch-footer-shadow);
+                background: #56bfcf;
+                box-shadow: #134568;
+                border-radius: 0 0 5px 5px;
+                border: none;
                 display: flex;
                 justify-content: flex-end;
                 flex-direction: row;
                 flex-shrink: 0;
                 margin-top: 20px;
-                height: 44px;
                 padding: 0 12px;
+                height: 44px;
                 position: relative;
                 user-select: none;
-                width: 100%;
+                width: calc(100% - 25px);
                 z-index: 300;
+                position: fixed;
+                left: 1px;
+                bottom: 0;
+            }
+
+            .clerk-input-wrapper {
+                position: fixed;
+                top: 0;
+                padding: 25px;
+                transform: translate(-50%, 0);
+            }
+
+            #clerk-search-input {
+                border: 1px solid #134568;
+                border-radius: 5px;
+                color: #000;
+                flex: 1;
+                font: inherit;
+                font-size: inherit;
+                font-size: 1.5em;
+                height: 100%;
+                outline: none;
+                padding: 0 0 0 8px;
+                height: 48px;
             }
 
             .clerk-logo {
@@ -101,83 +154,119 @@
                 display: flex;
                 align-items: center;
                 text-decoration: none;
-                cursor: auto;
+                cursor: pointer;
                 color: #000;
             }
         </style>
     </head>
-    <body>
-        <button class="clerk-search-button" type="button" aria-label="search" onclick="toggleModal()">
-            <span>
-                <div class="td-search__icon"></div>
-                <svg width="20" height="20" class="DocSearch-Search-Icon" viewBox="0 0 20 20"><path d="M14.386 14.386l4.0877 4.0877-4.0877-4.0877c-2.9418 2.9419-7.7115 2.9419-10.6533 0-2.9419-2.9418-2.9419-7.7115 0-10.6533 2.9418-2.9419 7.7115-2.9419 10.6533 0 2.9419 2.9418 2.9419 7.7115 0 10.6533z" stroke="currentColor" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                <span>Search</span>
-            </span>
-            <span id="search-button-keys"></span>
-        </button>
+    <html>
+        <body>
+            <button class="clerk-search-button" type="button" aria-label="search" onclick="toggleModal()">
+                <div class="clerk-search-button-placeholder">
+                    <span class="clerk-search-button-icon-wrapper">
+                        <div class="td-search__icon"></div>
+                        <svg width="20" height="20" class="DocSearch-Search-Icon" viewBox="0 0 20 20"><path d="M14.386 14.386l4.0877 4.0877-4.0877-4.0877c-2.9418 2.9419-7.7115 2.9419-10.6533 0-2.9419-2.9418-2.9419-7.7115 0-10.6533 2.9418-2.9419 7.7115-2.9419 10.6533 0 2.9419 2.9418 2.9419 7.7115 0 10.6533z" stroke="currentColor" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        <span>Search</span>
+                    </span>
+                    <span id="search-button-keys"></span>
+                </div>
+            </button>
 
-        <div class="modal-background">
-            <div class="blocker" onclick="hideModal()"></div>
-            <div class="modal-wrapper">
-                <div class="modal-body">
-                    <div class="td-search form-inline">
-                        <div class="td-search td-search-clerk">
-                            <div class="td-search__icon"></div>
-                            <input id="clerk-search-input" type="search" class="td-search__input form-control td-search-input pl-3" placeholder="{{ T "ui_search" }}" aria-label="{{ T "ui_search" }}" autocomplete="off"/>
+            <div class="modal-background">
+                <div class="blocker" onclick="hideModal()"></div>
+                <div class="modal-wrapper">
+                    <div class="modal-body">
+                        <div class="td-search form-inline clerk-input-wrapper">
+                            <div class="td-search td-search-clerk">
+                                <div class="td-search__icon"></div>
+                                <input id="clerk-search-input" type="search" class="td-search__input form-control td-search-input pl-3" placeholder="{{ T "ui_search" }}" aria-label="{{ T "ui_search" }}" autocomplete="off"/>
+                            </div>
                         </div>
-                        <span class="clerk" data-template="@knowledge-live-search" data-instant-search="#clerk-search-input" data-instant-search-suggestions="0" data-instant-search-categories="0" data-instant-search-pages="20" data-instant-search-positioning="center" />
+                    </div>
+                    <div class="modal-footer">
+                        <a class="clerk-link" href="https://clerk.io" target="_blank">
+                            Search by
+                            <img class="clerk-logo" src="https://global-uploads.webflow.com/63357df7224a8a49353f3636/63381c44a918c228b61fd12e_Logo.svg" alt="Clerk.io logo" height="20px" />
+                        </a>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <a class="clerk-link" href="https://clerk.io">
-                        Search by
-                        <img class="clerk-logo" src="https://global-uploads.webflow.com/63357df7224a8a49353f3636/63381c44a918c228b61fd12e_Logo.svg" alt="Clerk.io logo" height="20px" />
-                        <!-- Clerk logo -->
-                    </a>
-                </div>
             </div>
-        </div>
+            <span class="clerk" id="clerk-live-search" data-template="@knowledge-live-search" data-instant-search="#clerk-search-input" data-instant-search-suggestions="0" data-instant-search-categories="0" data-instant-search-pages="20" data-instant-search-positioning="center" />
 
-        <script type="text/javascript">
-            const modalWrapper = document.querySelector(".modal-wrapper");
-            const modalBackground = document.querySelector(".modal-background");
+            <script type="text/javascript">
+                (function (w, d) {
+                    var e = d.createElement("script");
+                    e.type = "text/javascript";
+                    e.async = true;
+                    e.src = "https://cdn.clerk.io/clerk.js";
+                    var s = d.getElementsByTagName("script")[0];
+                    s.parentNode.insertBefore(e, s);
+                    w.__clerk_q = w.__clerk_q || [];
+                    w.Clerk =
+                        w.Clerk ||
+                        function () {
+                            w.__clerk_q.push(arguments);
+                        };
+                })(window, document);
 
-            document.addEventListener("keydown", function (event) {
-                const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
+                Clerk("config", {
+                    key: "kasbUR8U7kctCTYMF5BquEtllUZJ901E",
+                });
 
-                if ((isMac && event.metaKey && event.code === "KeyK") || (!isMac && event.ctrlKey && event.code === "KeyK")) {
-                    event.preventDefault();
-                    toggleModal();
+                document.addEventListener("DOMContentLoaded", function () {
+                    const clerkLiveSearch = document.getElementById("clerk-live-search");
+                    const modalContent = document.querySelector(".modal-body");
+
+                    new ResizeObserver(() => {
+                        let clerkHeight = clerkLiveSearch.offsetHeight;
+                        modalContent.style.height = `${clerkHeight + 100}px`;
+                    }).observe(clerkLiveSearch);
+                });
+
+                const modalWrapper = document.querySelector(".modal-wrapper");
+                const modalBackground = document.querySelector(".modal-background");
+
+                document.addEventListener("keydown", function (event) {
+                    const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
+
+                    if ((isMac && event.metaKey && event.code === "KeyK") || (!isMac && event.ctrlKey && event.code === "KeyK")) {
+                        event.preventDefault();
+                        toggleModal();
+                    }
+                });
+
+                document.addEventListener("DOMContentLoaded", function () {
+                    const inputField = document.getElementById("search-button-keys");
+
+                    // Determine the platform-specific key combination
+                    const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
+                    const shortcut = isMac ? "⌘" : "Ctrl";
+
+                    // Create the <kbd> element and set its content
+                    const kbdElement = document.createElement("kbd");
+                    kbdElement.textContent = shortcut + " + K";
+
+                    // Append the <kbd> element after the input field
+                    inputField.parentNode.insertBefore(kbdElement, inputField.nextSibling);
+
+                    inputField.addEventListener("focus", toggleModal);
+                    inputField.addEventListener("click", toggleModal);
+                });
+
+                function toggleModal() {
+                    modalWrapper.classList.toggle("active");
+                    modalBackground.classList.toggle("active");
+
+                    if (modalWrapper.classList.contains("active")) {
+                        document.getElementById('clerk-search-input').focus();
+                    }
                 }
-            });
 
-            document.addEventListener("DOMContentLoaded", function () {
-                const inputField = document.getElementById("search-button-keys");
-
-                // Determine the platform-specific key combination
-                const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
-                const shortcut = isMac ? "⌘" : "Ctrl";
-
-                // Create the <kbd> element and set its content
-                const kbdElement = document.createElement("kbd");
-                kbdElement.textContent = shortcut + "+K";
-
-                // Append the <kbd> element after the input field
-                inputField.parentNode.insertBefore(kbdElement, inputField.nextSibling);
-
-                inputField.addEventListener("focus", toggleModal);
-                inputField.addEventListener("click", toggleModal);
-            });
-
-            function toggleModal() {
-                modalWrapper.classList.toggle("active");
-                modalBackground.classList.toggle("active");
-            }
-
-            function hideModal() {
-                modalBackground.classList.toggle("active");
-                modalWrapper.classList.toggle("active");
-            }
-        </script>
-    </body>
+                function hideModal() {
+                    modalBackground.classList.toggle("active");
+                    modalWrapper.classList.toggle("active");
+                }
+            </script>
+        </body>
+    </html>
 </html>
